@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<script src="jquery-3.6.0.min.js"></script>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+
+	<style>
+	   #grid{
+	   	width: 400px;
+	   	margin: 30px auto;
+	   }
+	   .square{
+	   	border:1px solid black;
+	   	width: 80px;
+	   	height: 80px;
+	   	padding: 20px;
+	   	text-align: center;
+	   	font-size: 50px;
+	   	float: left;
+	   }
+	   #s1,#s4,#s7{
+	   	border-left: none;
+	   }
+	    #s1,#s2,#s3{
+	   	border-top: none;
+	   }
+	    #s3,#s6,#s9{
+	   	border-right: none;
+	   }
+	    #s7,#s8,#s9{
+	   	border-bottom: none;
+	   }
+	   #container{
+	   	clear: left;
+	   	text-align: center;
+	   	display: none;
+	   }
+	   #result,#btnPlay{
+	   	background: black;
+	   	color: white;
+	   	font-size: 30px;
+	   	padding: 5px;
+	   	margin-top: 20px;
+	   	height: 50px;
+        }
+		.x-mark::after{
+			content: "X";
+			color: red;
+		}
+		.o-mark::after{
+			content: "O";
+			color: blue;
+		}
+		#result.win{
+			background: green;
+		}
+		#result.lost{
+			background: red;
+		}
+		#result.draw{
+			background: gray;
+		}
+		
+	</style>
+
+	<link rel="stylesheet" href="jquery1.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    
+	<script>
+		var finished;
+		$(document).ready(function(){
+			finished = false;
+			for(var i=1;i<=9;i++){
+			$("#grid").append("<div id=s" + i + " class =square data-position=" + i + "></div>")
+		    }
+		    $(".square").on("click", yourTurn);
+		    findWinner();
+		});
+
+		function yourTurn(){
+			if(!finished){
+			     if ($(this).attr("class").indexOf("marked") < 0){
+			     $(this).addClass("x-mark");
+			     $(this).addClass("marked");
+			     finished = findWinner($(this).data("position"), "x-mark");
+			     computerTurn();
+		         }
+		         else{
+		        	alert("This is already Marked!");
+		         }
+
+		    }
+		    else if(finished){
+		    	alert("the Game is over!");
+		    }
+		    if($(".marked").length == 9 && !finished){
+		    	displayResult("Draw","draw");
+		    }
+		    
+
+
+		   
+
+	    }
+		function computerTurn(){
+			var unticked = $(".square:not(.marked)");
+			var position = Math.floor(Math.random()*unticked.length);
+			var randomElement = unticked[position];
+			console.log(randomElement);
+			$(randomElement).addClass("o-mark");
+			$(randomElement).addClass("marked");
+			finished = findWinner($(this).data("position"), "o-mark");
+		}
+
+
+		function findWinner(pos,mark){
+			var winningPositions = [[1,2,3],[1,4,7],[1,5,9],[2,5,8],[3,6,9],[3,5,7],[4,5,6],[7,8,9]];
+			
+				if($(".x-mark").length >=3 || $(".o-mark").length >=3){
+                     $.each(winningPositions, function(index,withinArray){
+                     	if(withinArray.indexOf(pos) >= 0){
+                     		var cellsInARow = 0;
+                     		$.each(withinArray, function(key,value){
+                                var currentMark = $("#s" +value).attr("class");
+                                if(currentMark.indexOf(mark)>= 0){
+
+                                	console.log(pos + ":" + withinArray);
+                                	cellsInARow = cellsInARow + 1;
+                                	console.log("In a Row:" + cellsInARow);
+                                	if(cellsInARow == 3){
+                                		finished = true;
+                                		if(mark == "x-mark"){
+                                			result = "You Win!";
+                                			status = "win";
+                                		}
+                                		else{
+                                			result = "You Lost!"
+                                			status = "lost";
+                                		}
+                                		displayResult(result,status);
+                                	}
+                                }
+                     		});
+                     	}
+                     });
+				}
+			return finished;	
+			
+		}
+		function displayResult(result,status){
+			$("#container").show();
+			$("#result").html(result);
+			$("#result").addClass(status);
+		}
+		function resetGame(){
+			$("#container").hide();
+			$(".square").removeClass("marked");
+			$(".square").removeClass("x-mark");
+			$(".square").removeClass("o-mark");
+			$("#result").removeClass();
+			finished = false;
+		}
+
+	</script>
+</head>
+<body>
+	<div id="grid"></div>
+	<div id="container">
+        <button id="result" disabled>Test</button>
+		<button id="btnPlay" onclick= "resetGame();">Play</button>
+	</div>
+	
+   
+</body>
+</html>
